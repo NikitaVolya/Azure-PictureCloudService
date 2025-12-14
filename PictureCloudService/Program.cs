@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PictureCloudService.Data;
 using PictureCloudService.Services;
@@ -15,6 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>  options.UseSqlServer(con
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserService>();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/User/Login";
+        options.AccessDeniedPath = "/Home/Index";
+    });
 
 var app = builder.Build();
 
@@ -31,6 +38,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -1,6 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PictureCloudService.Data;
+using PictureCloudService.DTO.User;
 using PictureCloudService.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace PictureCloudService.Services
 {
@@ -23,9 +27,9 @@ namespace PictureCloudService.Services
             return user;
         }
 
-        public async Task<User?> CreateUserAsync(string login, string email, string password)
+        public async Task<User?> CreateUserAsync(RegisterUserDto registerUserDto)
         {
-            Personne? personne = await _authService.CreatePersonneAsync(email, login, password);
+            Personne? personne = await _authService.CreatePersonneAsync(registerUserDto.Email, registerUserDto.Login, registerUserDto.Password);
             if (personne == null)
             {
                 return null;

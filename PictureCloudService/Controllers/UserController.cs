@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PictureCloudService.Data;
 using PictureCloudService.DTO.User;
 using PictureCloudService.Models;
 using PictureCloudService.Services;
+using System.Security.Claims;
 
 namespace PictureCloudService.Controllers
 {
@@ -31,7 +35,7 @@ namespace PictureCloudService.Controllers
                 return View(registerUserDto);
             }
 
-            User? user = await _userService.CreateUserAsync(registerUserDto.Login, registerUserDto.Email, registerUserDto.Password);
+            User? user = await _userService.CreateUserAsync(registerUserDto);
 
             if (user == null) 
             {
@@ -62,6 +66,33 @@ namespace PictureCloudService.Controllers
                 ViewBag.LoginError = "Email or password is invalide";
                 return View(loginUserDto);
             }
+
+            List<Claim> claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.PersonneId.ToString()),
+                new Claim(ClaimTypes.Role, "User")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity)
+            );
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
 
             return RedirectToAction("Index", "Home");
         }

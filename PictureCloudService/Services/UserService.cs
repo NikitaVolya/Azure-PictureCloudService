@@ -25,7 +25,7 @@ namespace PictureCloudService.Services
 
         public async Task<User?> CreateUserAsync(string login, string email, string password)
         {
-            Personne? personne = await _authService.CreatePersonneAsync(login, email, password);
+            Personne? personne = await _authService.CreatePersonneAsync(email, login, password);
             if (personne == null)
             {
                 return null;
@@ -41,6 +41,17 @@ namespace PictureCloudService.Services
             await _context.SaveChangesAsync();
 
             return newUser;
+        }
+
+        public async Task<User?> LoginUserAsync(string email, string password)
+        {
+            string passwordHash = _authService.HashPassword(password);
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Email == email && u.Personne.HeshPassword == passwordHash);
+
+            return user;
         }
     }
 }

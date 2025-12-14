@@ -35,8 +35,32 @@ namespace PictureCloudService.Controllers
 
             if (user == null) 
             {
-                ViewBag.RegisterLogin = "User with same email or login is already exits";
+                ViewBag.RegisterError = "User with same email or login is already exits";
                 return View(registerUserDto);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginUserDto loginUserDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(loginUserDto);
+            }
+
+            User? user = await _userService.LoginUserAsync(loginUserDto.Email, loginUserDto.Password);
+
+            if (user == null)
+            {
+                ViewBag.LoginError = "Email or password is invalide";
+                return View(loginUserDto);
             }
 
             return RedirectToAction("Index", "Home");

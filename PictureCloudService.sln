@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36804.6 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictureCloudService", "PictureCloudService\PictureCloudService.csproj", "{436DA071-1AE3-4FDC-932A-15A52B210837}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{436DA071-1AE3-4FDC-932A-15A52B210837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{436DA071-1AE3-4FDC-932A-15A52B210837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{436DA071-1AE3-4FDC-932A-15A52B210837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{436DA071-1AE3-4FDC-932A-15A52B210837}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2DBC742-C234-40B2-8334-0E07CE3AD1FF}
+	EndGlobalSection
+EndGlobal

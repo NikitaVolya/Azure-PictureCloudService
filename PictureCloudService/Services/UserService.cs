@@ -51,7 +51,42 @@ namespace PictureCloudService.Services
                 .Include(u => u.Personne)
                 .FirstOrDefaultAsync(u => u.Personne.Email == email && u.Personne.HeshPassword == passwordHash);
 
+            if (user != null && await IsBannedAsync(user.PersonneId))
+            {
+                return null;
+            }
+
             return user;
+        }
+
+        public async Task<bool> IsBannedAsync(int userId)
+        {
+            return await _context.BannedUsers
+                .AnyAsync(u => u.UserId == userId);
+        }
+
+        public async Task BanneUserAsync(User user)
+        {
+            if (!(await IsBannedAsync(user.PersonneId)))
+            {
+                BannedUser bannedUser = new BannedUser
+                {
+                    UserId = user.PersonneId
+                };
+                await _context.BannedUsers.AddAsync(bannedUser);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UnbanneUserAsync(User user)
+        {
+            BannedUser? bannedUser = await _context.BannedUsers.FirstOrDefaultAsync(bu => bu.UserId == user.PersonneId);
+
+            if (bannedUser != null)
+            {
+                _context.BannedUsers.Remove(bannedUser);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ namespace PictureCloudService.Data
 {
     public class AppDbContext : DbContext
     {
+        public DbSet<Models.Personne> Personnes { get; set; }
         public DbSet<Models.User> Users { get; set; }
         public DbSet<Models.Picture> Pictures { get; set; }
         public DbSet<Models.Collection> Collections { get; set; }
@@ -18,6 +19,7 @@ namespace PictureCloudService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Models.Admin>()
                 .HasKey(a => a.PersonneId);
 

@@ -4,6 +4,7 @@ namespace PictureCloudService.Data
 {
     public class AppDbContext : DbContext
     {
+        public DbSet<Models.BannedUser> BannedUsers { get; set; }
         public DbSet<Models.Personne> Personnes { get; set; }
         public DbSet<Models.User> Users { get; set; }
         public DbSet<Models.Picture> Pictures { get; set; }
@@ -19,6 +20,13 @@ namespace PictureCloudService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Models.BannedUser>().
+                HasKey(bu => bu.UserId);
+
+            modelBuilder.Entity<Models.BannedUser>()
+                .HasOne(bu => bu.User)
+                .WithMany()
+                .HasForeignKey(bu => bu.UserId);
 
             modelBuilder.Entity<Models.Admin>()
                 .HasKey(a => a.PersonneId);
@@ -28,7 +36,6 @@ namespace PictureCloudService.Data
 
             modelBuilder.Entity<Models.Liked>()
                 .HasKey(l => new { l.UserId, l.PictureId });
-
 
             modelBuilder.Entity<Models.Admin>()
                 .HasOne(u => u.Personne)
@@ -41,7 +48,6 @@ namespace PictureCloudService.Data
                 .WithOne()
                 .HasForeignKey<Models.User>(u => u.PersonneId)
                 .OnDelete(DeleteBehavior.Cascade);
-
 
             modelBuilder.Entity<Models.Picture>()
                 .HasOne(p => p.User)

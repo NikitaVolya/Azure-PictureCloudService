@@ -95,7 +95,7 @@ namespace PictureCloudService.Data
 
             modelBuilder.Entity<Models.PictureComment>()
                 .HasOne(pc => pc.Picture)
-                .WithMany()
+                .WithMany(p => p.Comments)
                 .HasForeignKey(pc => pc.PictureId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

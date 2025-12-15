@@ -1,6 +1,4 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +7,7 @@ using PictureCloudService.DTO.Picture;
 using PictureCloudService.Models;
 using PictureCloudService.Services;
 using System.Security.Claims;
-using System.Threading.Tasks;
+
 
 namespace PictureCloudService.Controllers
 {
@@ -18,16 +16,14 @@ namespace PictureCloudService.Controllers
         private AppDbContext _context;
         private PictureComputerVisionService _visionService;
         private PictureService _pictureService;
-        private PictureBlobStorage _blobStorage;
 
         const long MaxPictureSize = 100L * 1024 * 1024;
 
-        public PictureController(AppDbContext appDbContext, PictureComputerVisionService visionService, PictureService pictureService, PictureBlobStorage blobStorage)
+        public PictureController(AppDbContext appDbContext, PictureComputerVisionService visionService, PictureService pictureService)
         {
             _context = appDbContext;
             _visionService = visionService;
             _pictureService = pictureService;
-            _blobStorage = blobStorage;
         }
 
 
@@ -156,6 +152,49 @@ namespace PictureCloudService.Controllers
             await _pictureService.RemoveLikeAsync(user.PersonneId, id);
 
             return Ok();
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Details([FromRoute] int id)
+        {
+            Picture? picture = await _context.Pictures
+                .Include(p => p.User)
+                .ThenInclude(u => u.Personne)
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (picture == null)
+                return NotFound();
+
+            ViewBag.PictureUrl = await _pictureService.GetPictureHref(id);
+            ViewBag.IsLiked = await _pictureService.IsLiked(picture.UserId, picture.Id);
+            ViewBag.LikeCount = await _pictureService.CountLikesAsync(picture.Id);
+
+            return View(picture);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleLike(int pictureId)
+        {
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+                return RedirectToAction("Login", "User");
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Login == userLogin);
+
+            if (user == null)
+                return RedirectToAction("Login", "User");
+
+            if (await _pictureService.IsLiked(user.PersonneId, pictureId))
+                await _pictureService.RemoveLikeAsync(user.PersonneId, pictureId);
+            else
+                await _pictureService.AddLikeAsync(user.PersonneId, pictureId);
+
+            return RedirectToAction("Details", new { id = pictureId });
         }
     }
 }

@@ -49,6 +49,9 @@ namespace PictureCloudService.Services
 
             await _blobStorage.UploadPictureAsync(picture, uploadPictureDto.File.OpenReadStream());
 
+            _context.Update(picture);
+            await _context.SaveChangesAsync();
+
             return picture;
         }
 
@@ -128,6 +131,20 @@ namespace PictureCloudService.Services
             await _context.PictureComments.AddAsync(comment);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<string> GetPictureHref(int pictureId)
+        {
+            Picture? picture = await _context.Pictures.FirstOrDefaultAsync(p => p.Id == pictureId);
+            if (picture == null)
+                return "";
+
+            return _blobStorage.GetHref(picture);
+        }
+
+        public IEnumerable<PictureComment> GetPictureComments(int pictureId)
+        {
+            return _context.PictureComments.Where(p => p.Id == pictureId);
         }
 
         private static List<string> Tokenize(string text)

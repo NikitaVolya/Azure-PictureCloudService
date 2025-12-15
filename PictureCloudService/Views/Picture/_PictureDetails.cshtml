@@ -1,0 +1,46 @@
+﻿@model PictureCloudService.Models.Picture
+
+<div class="picture-details">
+
+    <img src="@ViewBag.PictureUrl"
+         class="picture-full"
+         alt="@Model.Title" />
+
+    <h2>@Model.Title</h2>
+
+    <p>@Model.Description</p>
+
+    <form asp-action="ToggleLike"
+          asp-controller="Picture"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="pictureId" value="@Model.Id" />
+
+        <button type="submit"
+                class="like-btn @(ViewBag.IsLiked ? "liked" : "")">
+            ❤️ @ViewBag.LikeCount
+        </button>
+    </form>
+
+    <hr />
+
+    <div id="comments">
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="comment">
+                <strong>@comment.User.Personne.Login</strong>
+                <p>@comment.Content</p>
+            </div>
+        }
+    </div>
+
+    <form asp-action="AddComment" method="post">
+        <input type="hidden" name="PictureId" value="@Model.Id" />
+        <textarea name="Text" required></textarea>
+        <button type="submit">Comment</button>
+    </form>
+
+   
+</div>

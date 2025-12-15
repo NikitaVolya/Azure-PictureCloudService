@@ -53,7 +53,7 @@ namespace PictureCloudService.Services
                 .Include(u => u.Personne)
                 .FirstOrDefaultAsync(u => u.Personne.Email == email && u.Personne.HeshPassword == passwordHash);
 
-            if (user != null && await IsBannedAsync(user.PersonneId))
+            if (user != null && await IsBannedAsync(user.Personne.Login))
             {
                 return null;
             }
@@ -61,15 +61,17 @@ namespace PictureCloudService.Services
             return user;
         }
 
-        public async Task<bool> IsBannedAsync(int userId)
+        public async Task<bool> IsBannedAsync(string userLogin)
         {
             return await _context.BannedUsers
-                .AnyAsync(u => u.UserId == userId);
+                .Include(bu => bu.User)
+                .ThenInclude(bu => bu.Personne)
+                .AnyAsync(u => u.User.Personne.Login == userLogin);
         }
 
         public async Task BanneUserAsync(User user)
         {
-            if (!(await IsBannedAsync(user.PersonneId)))
+            if (!(await IsBannedAsync(user.Personne.Login)))
             {
                 BannedUser bannedUser = new BannedUser
                 {

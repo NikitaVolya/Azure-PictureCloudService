@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PictureCloudService.Models;
 
 namespace PictureCloudService.Data
 {
@@ -20,6 +21,9 @@ namespace PictureCloudService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CollectionPicture>()
+                .HasKey(cp => new { cp.CollectionId, cp.PictureId });
+
             modelBuilder.Entity<Models.BannedUser>().
                 HasKey(bu => bu.UserId);
 
@@ -98,6 +102,20 @@ namespace PictureCloudService.Data
                 .WithMany(p => p.Comments)
                 .HasForeignKey(pc => pc.PictureId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Picture>()
+                .HasMany(p => p.Collections)
+                .WithMany(c => c.Pictures)
+                .UsingEntity<CollectionPicture>(
+                    j => j
+                        .HasOne(cp => cp.Collection)
+                        .WithMany()
+                        .HasForeignKey(cp => cp.CollectionId),
+                    j => j
+                        .HasOne(cp => cp.Picture)
+                        .WithMany()
+                        .HasForeignKey(cp => cp.PictureId)
+                );
         }
     }
 }

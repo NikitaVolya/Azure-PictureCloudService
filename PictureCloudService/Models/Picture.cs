@@ -18,7 +18,9 @@ namespace PictureCloudService.Models
         public int UserId { get; set; }
         public User User { get; set; } = null!;
 
-        public List<PictureComment> Comments { get; set; }
+        public List<PictureComment> Comments { get; set; } = new();
+
+        public List<Collection> Collections { get; set; } = new();
 
     }
 }

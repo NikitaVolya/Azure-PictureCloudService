@@ -13,5 +13,7 @@ namespace PictureCloudService.Models
 
         public int UserId { get; set; }
         public User User { get; set; } = null!;
+
+        public List<Picture> Pictures { get; set; } = new();
     }
 }

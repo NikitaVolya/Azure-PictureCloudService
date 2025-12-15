@@ -2,9 +2,7 @@
 using PictureCloudService.Data;
 using PictureCloudService.DTO.User;
 using PictureCloudService.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
+
 
 namespace PictureCloudService.Services
 {
@@ -91,6 +89,25 @@ namespace PictureCloudService.Services
                 _context.BannedUsers.Remove(bannedUser);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> ResetPasswordAsync(string userLogin, string old_password, string new_password)
+        {
+            string HashOldPassword = _authService.HashPassword(old_password);
+            string HashNewPassowrd = _authService.HashPassword(new_password);
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Login == userLogin && u.Personne.HeshPassword == HashOldPassword);
+
+            if (user == null)
+                return false;
+
+            user.Personne.HeshPassword = HashNewPassowrd;
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

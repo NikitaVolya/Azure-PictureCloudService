@@ -8,6 +8,7 @@ using PictureCloudService.Models;
 using PictureCloudService.Services;
 using System.Security.Claims;
 
+
 namespace PictureCloudService.Controllers
 {
     public class UserController : Controller
@@ -69,7 +70,7 @@ namespace PictureCloudService.Controllers
 
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.NameIdentifier, user.PersonneId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Personne.Login),
                 new Claim(ClaimTypes.Role, "User")
             };
 
@@ -93,6 +94,43 @@ namespace PictureCloudService.Controllers
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme
             );
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordUserDto resetPasswordDto)
+        {
+            if (!ModelState.IsValid) { 
+                return View(resetPasswordDto);
+            }
+
+            if (resetPasswordDto.OldPassword == resetPasswordDto.NewPassword)
+            {
+                ViewBag.NewPassword = "The new password and the old password must be different.";
+                return View(resetPasswordDto);
+            }
+
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+            {
+                return RedirectToAction("Login", "User");
+            }
+            
+            bool passwordIsChanged = await _userService.ResetPasswordAsync(userLogin, resetPasswordDto.OldPassword, resetPasswordDto.NewPassword);
+
+            if (!passwordIsChanged) {
+                ViewBag.Error = "Password is incorect";
+                return View(resetPasswordDto);
+            }
 
             return RedirectToAction("Index", "Home");
         }

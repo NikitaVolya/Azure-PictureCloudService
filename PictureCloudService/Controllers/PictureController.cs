@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.EntityFrameworkCore;
 using PictureCloudService.Data;
+using PictureCloudService.DTO.Comment;
 using PictureCloudService.DTO.Picture;
 using PictureCloudService.Models;
 using PictureCloudService.Services;
@@ -195,6 +196,62 @@ namespace PictureCloudService.Controllers
                 await _pictureService.AddLikeAsync(user.PersonneId, pictureId);
 
             return RedirectToAction("Details", new { id = pictureId });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(UploadCommentDto dto)
+        {
+            ModelState.Remove("UserId");
+            if (!ModelState.IsValid)
+                return RedirectToAction("Details", new { id = dto.PictureId });
+
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+                return RedirectToAction("Login", "User");
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Login == userLogin);
+
+            if (user == null)
+                return RedirectToAction("Login", "User");
+
+            dto.UserId = user.PersonneId;
+
+            bool result = await _pictureService.AddCommentAsync(dto);
+
+            return RedirectToAction("Details", new { id = dto.PictureId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string q, int page = 1, int pageSize = 12)
+        {
+            ViewBag.Query = q;
+
+            if (string.IsNullOrWhiteSpace(q))
+                return RedirectToAction("Index", "Home");
+
+            var pictures = _pictureService.FindPicturesByText(q).ToList();
+
+            int totalItems = pictures.Count;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var pagedPictures = pictures
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var urls = new Dictionary<int, string>();
+            foreach (var pic in pagedPictures)
+                urls[pic.Id] = await _pictureService.GetPictureHref(pic.Id);
+
+            ViewBag.PictureUrls = urls;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View(pagedPictures);
         }
     }
 }

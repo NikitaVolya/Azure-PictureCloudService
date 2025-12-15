@@ -1,0 +1,38 @@
+﻿@model IEnumerable<PictureCloudService.Models.Picture>
+
+<h2>🔍 Search pictures</h2>
+
+<form asp-action="Search" method="get" class="search-form">
+    <input type="text"
+           name="q"
+           value="@ViewBag.Query"
+           placeholder="Search by title or tags..."
+           class="search-input" />
+
+    <button type="submit">Search</button>
+</form>
+
+<hr />
+
+@if (!Model.Any())
+{
+    <p>No results 😔</p>
+}
+else
+{
+    <partial name="_PictureGrid" model="Model" />
+}
+
+<nav class="pagination">
+    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+    {
+        if (i == ViewBag.CurrentPage)
+        {
+            <span class="current-page">@i</span>
+        }
+        else
+        {
+            <a href="@Url.Action("Search", new { q = ViewBag.Query, page = i })">@i</a>
+        }
+    }
+</nav>

@@ -1,4 +1,12 @@
 ﻿@model PictureCloudService.Models.Picture
+@{
+    var pageUrl = Context.Request.Scheme + "://" +
+                  Context.Request.Host +
+                  Context.Request.Path;
+
+    var text = $"Share: {Model.Title}";
+}
+
 
 <div class="picture-details">
 
@@ -24,6 +32,13 @@
         </button>
     </form>
 
+    <a href="https://t.me/share/url?url=@Uri.EscapeDataString(pageUrl)&text=@Uri.EscapeDataString(text)"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="telegram-share">
+        📤 Share in Telegram
+    </a>
+
     <hr />
 
     <div id="comments">
@@ -37,8 +52,12 @@
     </div>
 
     <form asp-action="AddComment" method="post">
-        <input type="hidden" name="PictureId" value="@Model.Id" />
-        <textarea name="Text" required></textarea>
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" name="PictureId" />
+
+        <textarea name="Content" required></textarea>
+
         <button type="submit">Comment</button>
     </form>
 

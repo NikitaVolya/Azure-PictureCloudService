@@ -198,6 +198,7 @@ namespace PictureCloudService.Services
         public IEnumerable<Picture> FindPicturesByText(string text)
         {
             return _context.Pictures
+                .AsEnumerable()
                 .Select(p => new { Picture = p, Score = CalculateImageRelevanceScore(text, p.Title, p.Tags) })
                 .Where(item => item.Score > 0)
                 .OrderBy(item => item.Score)

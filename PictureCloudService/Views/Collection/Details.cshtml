@@ -1,0 +1,45 @@
+﻿@model PictureCloudService.Models.Collection
+
+@{
+    ViewData["Title"] = "Collection details";
+    bool isOwner = ViewBag.IsUserCollection ?? false;
+}
+
+<h1>@Model.Title</h1>
+
+<p>@Model.Description</p>
+
+<p>
+    <strong>Public:</strong> @(Model.IsPublic ? "Yes" : "No")<br />
+    <strong>Created:</strong> @Model.CreatedAt.ToShortDateString()
+</p>
+
+@if (isOwner)
+{
+    <p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </p>
+}
+else
+{
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+}
+
+<hr />
+
+<h3>Pictures</h3>
+
+@if (Model.Pictures.Any())
+{
+    <ul>
+        @foreach (var pic in Model.Pictures)
+        {
+            <li><a asp-controller="Picture" asp-action="Details" asp-route-id="@pic.Id">@pic.Title</a></li>
+        }
+    </ul>
+}
+else
+{
+    <p>No pictures in this collection.</p>
+}

@@ -200,9 +200,40 @@ namespace PictureCloudService.Services
             return _context.Pictures
                 .AsEnumerable()
                 .Select(p => new { Picture = p, Score = CalculateImageRelevanceScore(text, p.Title, p.Tags) })
-                .Where(item => item.Score > 0)
+                .Where(item => item.Score > 0 && item.Picture.IsPublic)
                 .OrderBy(item => item.Score)
                 .Select(item => item.Picture);
+        }
+
+        public async Task<bool> UpdatePictureAsync(int pictureId, UpdatePictureDto dto)
+        {
+            var picture = await _context.Pictures
+                .Include(p => p.Collections)
+                .FirstOrDefaultAsync(p => p.Id == pictureId);
+
+            if (picture == null)
+                return false;
+
+            picture.Title = dto.Title;
+            picture.Description = dto.Description;
+            picture.IsPublic = dto.IsPublic;
+
+            picture.Collections.RemoveAll(c => !dto.CollectionIds.Contains(c.Id));
+            
+            var existingCollectionIds = picture.Collections.Select(c => c.Id).ToHashSet();
+            var collectionsToAdd = await _context.Collections
+                .Include(c => c.User)
+                .ThenInclude(u => u.Collections)
+                .Where(c => dto.CollectionIds.Contains(c.Id) && !existingCollectionIds.Contains(c.Id) && c.User.Collections.Any(uc => uc.Id == c.Id))
+                .ToListAsync();
+
+            foreach (var collection in collectionsToAdd)
+            {
+                picture.Collections.Add(collection);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

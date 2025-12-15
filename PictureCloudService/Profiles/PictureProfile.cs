@@ -11,6 +11,10 @@ namespace PictureCloudService.Profiles
 
             CreateMap<UploadPictureDto, Picture>()
                 .ForMember(dest => dest.UploadDate, opt => opt.MapFrom(src => DateTime.UtcNow));
+
+            CreateMap<Picture, UpdatePictureDto>()
+                .ForMember(dest => dest.CollectionIds, 
+                           opt => opt.MapFrom(src => src.Collections.Select(c => new UpdatePictureDto.CollectionItem { Id = c.Id, Title = c.Title })));
         }
     }
 }

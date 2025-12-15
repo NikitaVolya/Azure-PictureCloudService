@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +18,16 @@ namespace PictureCloudService.Controllers
         private AppDbContext _context;
         private PictureComputerVisionService _visionService;
         private PictureService _pictureService;
+        private IMapper _mapper;
 
         const long MaxPictureSize = 100L * 1024 * 1024;
 
-        public PictureController(AppDbContext appDbContext, PictureComputerVisionService visionService, PictureService pictureService)
+        public PictureController(AppDbContext appDbContext, PictureComputerVisionService visionService, PictureService pictureService, IMapper mapper)
         {
             _context = appDbContext;
             _visionService = visionService;
             _pictureService = pictureService;
+            _mapper = mapper;
         }
 
 
@@ -252,6 +255,51 @@ namespace PictureCloudService.Controllers
             ViewBag.TotalPages = totalPages;
 
             return View(pagedPictures);
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Update([FromRoute] int id)
+        {
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+                return RedirectToAction("Login", "User");
+
+            Picture? picture = await _context.Pictures
+                .Include(p => p.User)
+                .ThenInclude(u => u.Personne)
+                .Include(p => p.Collections)
+                .FirstOrDefaultAsync(p => p.User.Personne.Login == userLogin && p.Id == id);
+
+            if (picture == null)
+                return NotFound();
+
+            UpdatePictureDto? updatePictureDto = _mapper.Map<Picture, UpdatePictureDto>(picture);
+
+            ViewBag.UserCollections = await _context.Users
+                .Include(u => u.Personne)
+                .Include(u => u.Collections)
+                .Where(u => u.Personne.Login == userLogin)
+                .Select(u => u.Collections)
+                .FirstOrDefaultAsync();
+
+            return View(updatePictureDto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(int id, UpdatePictureDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var success = await _pictureService.UpdatePictureAsync(id, dto);
+
+            if (!success)
+                return NotFound();
+
+            return RedirectToAction("Details", new { id });
         }
     }
 }

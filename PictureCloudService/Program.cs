@@ -18,6 +18,8 @@ builder.Services.AddScoped<PictureComputerVisionService>();
 builder.Services.AddScoped<PictureBlobStorage>();
 builder.Services.AddScoped<PictureService>();
 
+builder.Services.AddScoped<CollectionService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserService>();
 

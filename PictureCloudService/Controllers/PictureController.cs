@@ -118,5 +118,44 @@ namespace PictureCloudService.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Like([FromRoute] int id) {
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+                return RedirectToAction("Login", "User");
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Login == userLogin);
+
+            if (user == null)
+                return RedirectToAction("Login", "User");
+
+            await _pictureService.AddLikeAsync(user.PersonneId, id);
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Unlike([FromRoute] int id)
+        {
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userLogin == null)
+                return RedirectToAction("Login", "User");
+
+            User? user = await _context.Users
+                .Include(u => u.Personne)
+                .FirstOrDefaultAsync(u => u.Personne.Login == userLogin);
+
+            if (user == null)
+                return RedirectToAction("Login", "User");
+
+            await _pictureService.RemoveLikeAsync(user.PersonneId, id);
+
+            return Ok();
+        }
     }
 }

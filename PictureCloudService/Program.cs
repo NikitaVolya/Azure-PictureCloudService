@@ -15,7 +15,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>  options.UseSqlServer(con
 
 
 builder.Services.AddScoped<PictureComputerVisionService>();
+builder.Services.AddScoped<PictureBlobStorage>();
 builder.Services.AddScoped<PictureService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserService>();
 

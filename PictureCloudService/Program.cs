@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PictureCloudService.Data;
+using PictureCloudService.Profiles;
 using PictureCloudService.Services;
 
-var key = "This_is_my_first_Test_Key_That_Is_Long_Enough_123!";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +13,9 @@ builder.Services.AddControllersWithViews();
 string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") ?? throw new InvalidOperationException("DATABASE_CONNECTION_STRING environment variable is not set.");
 builder.Services.AddDbContext<AppDbContext>(options =>  options.UseSqlServer(connectionString));
 
+
+builder.Services.AddScoped<PictureComputerVisionService>();
+builder.Services.AddScoped<PictureService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserService>();
 
@@ -22,6 +25,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/User/Login";
         options.AccessDeniedPath = "/Home/Index";
     });
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

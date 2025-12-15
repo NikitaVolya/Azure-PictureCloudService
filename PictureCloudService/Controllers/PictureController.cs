@@ -30,7 +30,6 @@ namespace PictureCloudService.Controllers
             _mapper = mapper;
         }
 
-
         [Authorize(Roles = "User")]
         [HttpGet]
         public IActionResult Upload()
@@ -161,6 +160,9 @@ namespace PictureCloudService.Controllers
         [Authorize]
         public async Task<IActionResult> Details([FromRoute] int id)
         {
+            string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
             Picture? picture = await _context.Pictures
                 .Include(p => p.User)
                 .ThenInclude(u => u.Personne)
@@ -171,8 +173,18 @@ namespace PictureCloudService.Controllers
                 return NotFound();
 
             ViewBag.PictureUrl = await _pictureService.GetPictureHref(id);
-            ViewBag.IsLiked = await _pictureService.IsLiked(picture.UserId, picture.Id);
             ViewBag.LikeCount = await _pictureService.CountLikesAsync(picture.Id);
+
+            if (userLogin != null)
+            {
+                ViewBag.IsOwner = picture.User.Personne.Login == userLogin;
+                ViewBag.IsLiked = await _pictureService.IsLiked(picture.UserId, picture.Id);
+            }
+            else
+            {
+                ViewBag.IsOwner = false;
+                ViewBag.IsLiked = false;
+            }
 
             return View(picture);
         }

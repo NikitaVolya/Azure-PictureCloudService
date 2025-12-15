@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace PictureCloudService.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class CollectionController : Controller
     {
         private readonly CollectionService _collectionService;

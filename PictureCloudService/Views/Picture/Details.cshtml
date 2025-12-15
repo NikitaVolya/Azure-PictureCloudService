@@ -1,3 +1,65 @@
 ﻿@model PictureCloudService.Models.Picture
+@{
+    var pageUrl = Context.Request.Scheme + "://" +
+                  Context.Request.Host +
+                  Context.Request.Path;
 
-<partial name="_PictureDetails" model="Model" />
+    var text = $"Share: {Model.Title}";
+}
+
+
+<div class="picture-details">
+
+    <img src="@ViewBag.PictureUrl"
+         class="picture-full"
+         alt="@Model.Title" />
+
+    <h2>@Model.Title</h2>
+
+    <p>@Model.Description</p>
+
+    <form asp-action="ToggleLike"
+          asp-controller="Picture"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="pictureId" value="@Model.Id" />
+
+        <button type="submit"
+                class="like-btn @(ViewBag.IsLiked ? "liked" : "")">
+            ❤️ @ViewBag.LikeCount
+        </button>
+    </form>
+
+    <a href="https://t.me/share/url?url=@Uri.EscapeDataString(pageUrl)&text=@Uri.EscapeDataString(text)"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="telegram-share">
+        📤 Share in Telegram
+    </a>
+
+    <hr />
+
+    <div id="comments">
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="comment">
+                <strong>@comment.User.Personne.Login</strong>
+                <p>@comment.Content</p>
+            </div>
+        }
+    </div>
+
+    <form asp-action="AddComment" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" name="PictureId" />
+
+        <textarea name="Content" required></textarea>
+
+        <button type="submit">Comment</button>
+    </form>
+
+   
+</div>

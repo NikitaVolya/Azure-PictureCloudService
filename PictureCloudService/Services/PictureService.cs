@@ -224,7 +224,9 @@ namespace PictureCloudService.Services
             var collectionsToAdd = await _context.Collections
                 .Include(c => c.User)
                 .ThenInclude(u => u.Collections)
-                .Where(c => dto.CollectionIds.Contains(c.Id) && !existingCollectionIds.Contains(c.Id) && c.User.Collections.Any(uc => uc.Id == c.Id))
+                .Where(c => dto.CollectionIds.Contains(c.Id)
+                && !existingCollectionIds.Contains(c.Id) 
+                && c.User.Collections.Any(uc => uc.Id == c.Id))
                 .ToListAsync();
 
             foreach (var collection in collectionsToAdd)
@@ -232,6 +234,7 @@ namespace PictureCloudService.Services
                 picture.Collections.Add(collection);
             }
 
+            _context.Update(picture);
             await _context.SaveChangesAsync();
             return true;
         }

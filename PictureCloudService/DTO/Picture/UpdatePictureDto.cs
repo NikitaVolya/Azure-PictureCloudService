@@ -4,12 +4,6 @@ namespace PictureCloudService.DTO.Picture
 {
     public class UpdatePictureDto
     {
-        public class CollectionItem
-        {
-            public int Id;
-            public string Title { get; set; } = null!;
-        }
-
 
         [Required]
         [MaxLength(200)]

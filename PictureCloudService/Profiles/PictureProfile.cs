@@ -14,7 +14,7 @@ namespace PictureCloudService.Profiles
 
             CreateMap<Picture, UpdatePictureDto>()
                 .ForMember(dest => dest.CollectionIds, 
-                           opt => opt.MapFrom(src => src.Collections.Select(c => new UpdatePictureDto.CollectionItem { Id = c.Id, Title = c.Title })));
+                           opt => opt.MapFrom(src => src.Collections.Select(c => c.Id)));
         }
     }
 }

@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Collection details";
-    bool isOwner = ViewBag.IsUserCollection ?? false;
 }
 
 <h1>@Model.Title</h1>
@@ -14,16 +13,12 @@
     <strong>Created:</strong> @Model.CreatedAt.ToShortDateString()
 </p>
 
-@if (isOwner)
+@if (@ViewBag.PictureUrl)
 {
     <p>
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
         <a asp-action="Index" class="btn btn-secondary">Back</a>
     </p>
-}
-else
-{
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
 }
 
 <hr />

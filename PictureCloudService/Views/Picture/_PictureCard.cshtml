@@ -25,7 +25,7 @@
             <button class="like-btn"
                     data-id="@Model.Id"
                     onclick="toggleLike(this)">
-                ❤️ <span id="likes-@Model.Id">0</span>
+                ❤️ <span id="likes-@Model.Id">@ViewBag.PictureLikes[Model.Id]</span>
             </button>
 
         </div>

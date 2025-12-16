@@ -95,7 +95,8 @@ namespace PictureCloudService.Controllers
         }
 
         [Authorize]
-        [HttpGet()]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
             string? userLogin = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -262,7 +263,12 @@ namespace PictureCloudService.Controllers
             foreach (var pic in pagedPictures)
                 urls[pic.Id] = await _pictureService.GetPictureHref(pic.Id);
 
+            var likes = new Dictionary<int, string>();
+            foreach (var pic in pagedPictures)
+                likes[pic.Id] = (await _pictureService.CountLikesAsync(pic.Id)).ToString();
+
             ViewBag.PictureUrls = urls;
+            ViewBag.PictureLikes = likes;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
 

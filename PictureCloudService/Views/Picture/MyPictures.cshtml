@@ -1,0 +1,77 @@
+﻿@model List<PictureCloudService.Models.Picture>
+
+<h2 class="page-title">My pictures</h2>
+
+@if (!Model.Any())
+{
+    <p class="empty-state">You haven't uploaded any pictures yet.</p>
+}
+else
+{
+    <div class="pictures-grid">
+
+        @foreach (var pic in Model)
+        {
+            <div class="picture-card">
+
+                <a asp-action="Details"
+                   asp-route-id="@pic.Id"
+                   class="picture-thumb-wrapper">
+
+                    <img src="@ViewBag.PictureUrls[pic.Id]"
+                         alt="@pic.Title"
+                         class="picture-thumb" />
+                </a>
+
+                <div class="picture-info">
+
+                    <h4 class="picture-title">
+                        @pic.Title
+                    </h4>
+
+                    <div class="picture-stats">
+                        ❤️ @ViewBag.PictureLikes[pic.Id]
+                    </div>
+
+                    <div class="picture-actions">
+
+                        <a asp-action="Update"
+                           asp-route-id="@pic.Id"
+                           class="btn btn-edit">
+                            ✏ Edit
+                        </a>
+
+                        <form asp-action="Delete"
+                              asp-route-id="@pic.Id"
+                              method="post"
+                              onsubmit="return confirm('Delete this picture?');">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-delete">
+                                🗑 Delete
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="pagination">
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <a asp-action="MyPictures"
+               asp-route-page="@i"
+               class="page-link @(i == ViewBag.CurrentPage ? "active" : "")">
+                @i
+            </a>
+        }
+
+    </div>
+}

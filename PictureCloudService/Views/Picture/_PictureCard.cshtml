@@ -1,0 +1,35 @@
+﻿@model PictureCloudService.Models.Picture
+
+<div class="picture-card">
+
+    <a asp-action="Details"
+       asp-route-id="@Model.Id"
+       class="picture-link">
+
+        <div class="picture-thumb-wrapper">
+            <img src="@ViewBag.PictureUrls[Model.Id]"
+                 alt="@Model.Title"
+                 class="picture-thumb" />
+        </div>
+
+    </a>
+
+    <div class="picture-info">
+
+        <h3 class="picture-title">
+            @Model.Title
+        </h3>
+
+        <div class="picture-actions">
+
+            <button class="like-btn"
+                    data-id="@Model.Id"
+                    onclick="toggleLike(this)">
+                ❤️ <span id="likes-@Model.Id">@ViewBag.PictureLikes[Model.Id]</span>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

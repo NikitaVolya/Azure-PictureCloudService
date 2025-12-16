@@ -3,47 +3,188 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PictureCloudService</title>
+
+    <title>@ViewData["Title"] - PictureCloud</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PictureCloudService.styles.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PictureCloudService</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <!-- BRAND -->
+                <a class="navbar-brand fw-bold"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    📷 PictureCloud
+                </a>
+
+                <!-- TOGGLER -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <!-- LEFT MENU -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link"
+                               asp-controller="Picture"
+                               asp-action="Search">
+                                Search
+                            </a>
                         </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Picture"
+                                   asp-action="Upload">
+                                    Upload
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Collection"
+                                   asp-action="Index">
+                                    Collections
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Picture"
+                                   asp-action="MyPictures">
+                                    My pictures
+                                </a>
+                            </li>
+                        }
+
                     </ul>
+
+                    <!-- SEARCH BAR -->
+                    <form class="d-flex me-3"
+                          asp-controller="Picture"
+                          asp-action="Search"
+                          method="get">
+
+                        <input class="form-control me-2"
+                               type="search"
+                               name="q"
+                               placeholder="Search images..."
+                               aria-label="Search" />
+
+                        <button class="btn btn-outline-secondary"
+                                type="submit">
+                            🔍
+                        </button>
+                    </form>
+
+                    <!-- RIGHT MENU -->
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    👤 @User.Identity.Name
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="User"
+                                           asp-action="ResetPassword">
+                                            Reset password
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger"
+                                           asp-controller="User"
+                                           asp-action="Logout">
+                                            Logout
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="User"
+                                   asp-action="Login">
+                                    Login
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="User"
+                                   asp-action="Register">
+                                    Register
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - PictureCloudService - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- MAIN CONTENT -->
+    <main class="container my-4">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-top text-muted py-3 mt-auto">
+        <div class="container text-center">
+            © 2025 PictureCloud ·
+            <a asp-controller="Home"
+               asp-action="Privacy">
+                Privacy
+            </a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

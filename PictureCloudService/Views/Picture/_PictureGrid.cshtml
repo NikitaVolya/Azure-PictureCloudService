@@ -1,0 +1,27 @@
+﻿@model IEnumerable<PictureCloudService.Models.Picture>
+
+@section Styles {
+        .picture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .picture-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .picture-thumb {
+            width: 100%;
+            border-radius: 6px;
+        }
+}
+
+<div class="picture-grid">
+    @foreach (var pic in Model)
+    {
+        @Html.Partial("_PictureCard", pic)
+    }
+</div>

@@ -1,0 +1,16 @@
+﻿<form asp-controller="Picture"
+      asp-action="Search"
+      method="get"
+      class="search-form">
+
+    <input type="text"
+           name="q"
+           value="@ViewBag.Query"
+           placeholder="Search pictures..."
+           class="search-input" />
+
+    <button type="submit" class="search-btn">
+        🔍
+    </button>
+
+</form>

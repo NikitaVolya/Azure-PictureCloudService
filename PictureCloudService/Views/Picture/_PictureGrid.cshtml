@@ -20,8 +20,8 @@
 }
 
 <div class="picture-grid">
-    @foreach (var picture in Model)
+    @foreach (var pic in Model)
     {
-        <partial name="_PictureCard" model="picture" />
+        @Html.Partial("_PictureCard", pic)
     }
 </div>

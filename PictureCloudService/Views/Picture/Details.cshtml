@@ -1,4 +1,5 @@
 ﻿@model PictureCloudService.Models.Picture
+
 @{
     var pageUrl = Context.Request.Scheme + "://" +
                   Context.Request.Host +
@@ -7,59 +8,105 @@
     var text = $"Share: {Model.Title}";
 }
 
-
 <div class="picture-details">
 
-    <img src="@ViewBag.PictureUrl"
-         class="picture-full"
-         alt="@Model.Title" />
+    <div class="picture-image-wrapper">
+        <img src="@ViewBag.PictureUrl"
+             class="picture-full"
+             alt="@Model.Title" />
+    </div>
 
-    <h2>@Model.Title</h2>
+    <div class="picture-meta">
 
-    <p>@Model.Description</p>
+        <h2 class="picture-title">
+            @Model.Title
+        </h2>
 
-    <form asp-action="ToggleLike"
-          asp-controller="Picture"
-          method="post">
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="picture-description">
+                @Model.Description
+            </p>
+        }
 
-        @Html.AntiForgeryToken()
+        <div class="picture-actions-row">
 
-        <input type="hidden" name="pictureId" value="@Model.Id" />
+            <form asp-action="ToggleLike"
+                  asp-controller="Picture"
+                  method="post"
+                  class="like-form">
 
-        <button type="submit"
-                class="like-btn @(ViewBag.IsLiked ? "liked" : "")">
-            ❤️ @ViewBag.LikeCount
-        </button>
-    </form>
+                @Html.AntiForgeryToken()
 
-    <a href="https://t.me/share/url?url=@Uri.EscapeDataString(pageUrl)&text=@Uri.EscapeDataString(text)"
-       target="_blank"
-       rel="noopener noreferrer"
-       class="telegram-share">
-        📤 Share in Telegram
-    </a>
+                <input type="hidden"
+                       name="pictureId"
+                       value="@Model.Id" />
+
+                <button type="submit"
+                        class="like-btn @(ViewBag.IsLiked ? "liked" : "")">
+                    ❤️ @ViewBag.LikeCount
+                </button>
+            </form>
+
+            <a href="https://t.me/share/url?url=@Uri.EscapeDataString(pageUrl)&text=@Uri.EscapeDataString(text)"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="telegram-share">
+                📤 Share
+            </a>
+
+        </div>
+
+    </div>
 
     <hr />
 
-    <div id="comments">
-        @foreach (var comment in Model.Comments)
+    <div class="comments-section">
+
+        <h3>Comments</h3>
+
+        @if (Model.Comments?.Any() == true)
         {
-            <div class="comment">
-                <strong>@comment.User.Personne.Login</strong>
-                <p>@comment.Content</p>
-            </div>
+            foreach (var comment in Model.Comments)
+            {
+                <div class="comment">
+
+                    <div class="comment-header">
+                        <strong>@comment.User.Personne.Login</strong>
+                    </div>
+
+                    <p class="comment-content">
+                        @comment.Content
+                    </p>
+
+                </div>
+            }
         }
+        else
+        {
+            <p class="no-comments">No comments yet</p>
+        }
+
     </div>
 
-    <form asp-action="AddComment" method="post">
+    <form asp-action="AddComment"
+          method="post"
+          class="comment-form">
+
         @Html.AntiForgeryToken()
 
-        <input type="hidden" asp-for="Id" name="PictureId" />
+        <input type="hidden"
+               name="PictureId"
+               value="@Model.Id" />
 
-        <textarea name="Content" required></textarea>
+        <textarea name="Content"
+                  placeholder="Write a comment..."
+                  required></textarea>
 
-        <button type="submit">Comment</button>
+        <button type="submit">
+            Comment
+        </button>
+
     </form>
 
-   
 </div>
